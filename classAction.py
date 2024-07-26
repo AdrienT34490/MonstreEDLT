@@ -39,7 +39,7 @@ class Action:
             elif stat == "duree":
                 self.duree = self.duree + 1
                 self.complexite = self.complexite - 1
-            elif stat == "Bonus":
+            elif stat == "bonus":
                 self.bonus = self.bonus + 1
                 self.complexite = self.complexite - 2
             elif stat == "autre" and qteAutre < 3:
