@@ -94,21 +94,17 @@ class Creature(Coquille):
     def setFaibResi(self, typeMonstre):
         nombreEssai = 4
         if typeMonstre == "faible":
-            print("je suis faible")
             self.FaibResi["faiblesse"] = self.FaibResi["faiblesse"] + 1
             nombreEssai = nombreEssai - 1
         elif typeMonstre == "fort":
-            print("je suis fort")
             self.FaibResi["resistance"] = self.FaibResi["resistance"] + 1
             nombreEssai = nombreEssai - 1
 
         for essai in range(0, nombreEssai):
             resultatJet = jetDeDes(1, 6)
             if resultatJet == 1:
-                print("j'ai gagné une faiblesse :(")
                 self.FaibResi["faiblesse"] = self.FaibResi["faiblesse"] + 1
             elif resultatJet == 6:
-                print("j'ai gagné une résistance :)")
                 self.FaibResi["resistance"] = self.FaibResi["resistance"] + 1
 
     def toString(self):

@@ -7,6 +7,8 @@ class Action:
     def __init__(self, typeAction, etage, typeCreature):
         self.typeAction = typeAction
 
+        self.etage = etage
+
         self.facteurComplexite = [0, 1]
 
         self.typeCreature = typeCreature
@@ -18,7 +20,7 @@ class Action:
             self.facteurComplexite = [2, 3]
 
         self.complexite = random.choice(range(etage*self.facteurComplexite[0], etage*self.facteurComplexite[1]))
-        print(self.complexite)
+        complexite = self.complexite
 
         self.effet = 0
         self.portee = 0
@@ -94,7 +96,7 @@ class Action:
                 else:
                     augmentation("portee")
 
-        print(self.complexite)
+        self.complexite = complexite
 
     def toString(self):
         return (f"Action " + self.typeAction + " : \n"
@@ -102,4 +104,8 @@ class Action:
                                                 f" - Portée : {self.portee} mètres \n"
                                                 f" - Durée : {self.duree} tours \n"
                                                 f" - Bonus : +{self.bonus} \n"
-                                                f" - Autre carac : +{self.autre} points à répartir \n")
+                                                f" - Effets sup : +{self.autre} points à répartir \n"
+                                                f" - Complexité : {self.complexite} \n"
+                                                f" - Difficulté : {10 + self.complexite//2 + self.etage} \n"
+                                                f" - Incantation : {(self.complexite//3) - 2} \n"
+                                                f" - Récupération : {(self.complexite//4)} \n")
