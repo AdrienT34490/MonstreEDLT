@@ -1,46 +1,105 @@
-from globalFunctions import *
+import random
 
-typeAction = ["utile", "defensive", "agressive"]
+from globalFunctions import *
 
 
 class Action:
-    def __init__(self):
-        typeEffet = rd.choice(typeAction)
-        self.typeEffet = typeEffet
-        self.effet = ""
-        self.etage = 0
-        self.duree = 0
+    def __init__(self, typeAction, etage, typeCreature):
+        self.typeAction = typeAction
+
+        self.facteurComplexite = [0, 1]
+
+        self.typeCreature = typeCreature
+        if typeCreature == "faible":
+            self.facteurComplexite = [0, 1]
+        elif typeCreature == "moyen":
+            self.facteurComplexite = [1, 2]
+        elif typeCreature == "fort":
+            self.facteurComplexite = [2, 3]
+
+        self.complexite = random.choice(range(etage*self.facteurComplexite[0], etage*self.facteurComplexite[1]))
+        print(self.complexite)
+
+        self.effet = 0
         self.portee = 0
-        self.difficulte = 0
+        self.duree = 0
+        self.bonus = 0
+        self.autre = 0
 
-    def setEtage(self, etage):
-        self.etage = etage
+        def augmentation(stat):
+            qteAutre = 0
+            if stat == "effet":
+                self.effet = self.effet + 2
+                self.complexite = self.complexite - 1
+            elif stat == "portee":
+                self.portee = self.portee + random.choice([1, 2, 3])
+                self.complexite = self.complexite - 1
+            elif stat == "duree":
+                self.duree = self.duree + 1
+                self.complexite = self.complexite - 1
+            elif stat == "Bonus":
+                self.bonus = self.bonus + 1
+                self.complexite = self.complexite - 2
+            elif stat == "autre" and qteAutre < 3:
+                qteAutre = qteAutre + 1
+                valeur = random.choice([1, 2])
+                self.autre = self.autre + valeur
+                self.complexite = self.complexite - valeur
 
-    def setEffet(self, effetBase):
-        bonusAConvertir = self.etage + rd.choice(range(0, 4))
-        if bonusAConvertir < 0:
-            bonusAConvertir = 0
-        self.effet = effetBase + f" + {flatToDice(bonusAConvertir)}"
-        self.effet = ajoutDe(self.effet)
+        etape = 0
+        while self.complexite > 0:
+            selection = random.random()
+            etape = etape + 1
+            if self.typeAction == "attaque":
+                if etape == 1:
+                    self.effet = self.effet + 2
 
-    def setDuree(self):
-        # durée aléatoire entre 0 et étage/3 arrondi à l'inférieur
-        dureeMax = int(self.etage / 3)
-        self.duree = rd.choice(range(0, dureeMax + 2))
+                if selection < 0.25:
+                    augmentation("portee")
+                else:
+                    augmentation("effet")
 
-    def setPortee(self):
-        # portée aléatoire entre 0 et (étage/3 + 1)*4 arrondit à l'inférieur
-        porteeMax = (int(self.etage / 3) + 1) * rd.choice(range(0, 4))
-        self.portee = rd.choice(range(0, porteeMax + 1))
+            elif self.typeAction == "agressive":
+                if etape == 1:
+                    self.effet = self.effet + 2
 
-    def setDifficulte(self):
-        # difficulté calculée à peu près de la même manière que les sorts
-        complexite = diceToFlat(self.effet) + self.portee + self.duree + self.etage
-        self.difficulte = 10 + int(complexite / 2)
+                if selection < 0.1:
+                    augmentation("autre")
+                elif selection < 0.2:
+                    augmentation("duree")
+                elif selection < 0.4:
+                    augmentation("portee")
+                else:
+                    augmentation("effet")
+
+            elif self.typeAction == "defensive":
+                if selection < 0.1:
+                    augmentation("autre")
+                elif selection < 0.25:
+                    augmentation("bonus")
+                elif selection < 0.5:
+                    augmentation("duree")
+                elif selection < 0.7:
+                    augmentation("portee")
+                else:
+                    augmentation("effet")
+
+            elif self.typeAction == "utile":
+                if selection < 0.1:
+                    augmentation("autre")
+                elif selection < 0.2:
+                    augmentation("bonus")
+                elif selection < 0.4:
+                    augmentation("duree")
+                else:
+                    augmentation("portee")
+
+        print(self.complexite)
 
     def toString(self):
-        return (f"Action {self.typeEffet}\n"
-                f"  - effet : {self.effet}\n"
-                f"  - durée : {self.duree}\n"
-                f"  - portée : {self.portee}\n"
-                f"  - difficulté : {self.difficulte}\n")
+        return (f"Action " + self.typeAction + " : \n"
+                                                f" - Effet : {flatToDice(self.effet)} \n"
+                                                f" - Portée : {self.portee} mètres \n"
+                                                f" - Durée : {self.duree} tours \n"
+                                                f" - Bonus : +{self.bonus} \n"
+                                                f" - Autre carac : +{self.autre} points à répartir \n")

@@ -152,11 +152,17 @@ class Creature(Coquille):
         POmoyen = int(((self.etage * 150) / mobATuer[self.etage] + self.caracteristiques["PV"]) * facteur)
         self.PO = POmoyen
 
-    def setActions(self, nombreActions):
+    def setActions(self, nombreActions, typeCreature):
         for i in range(1, nombreActions + 1):
-            clef = f"Action{i}"
-            valeur = Action()
-            self.actions[clef] = valeur
+            if i == 1:
+                clef = f"Attaque"
+                valeur = Action("attaque", self.etage, typeCreature)
+                self.actions[clef] = valeur
+            else:
+                typeAction = random.choice(["agressive", "utile", "defensive"])
+                clef = "Action " + typeAction
+                valeur = Action(typeAction, self.etage, typeCreature)
+                self.actions[clef] = valeur
 
 
 class CreatureFaible(Creature):
@@ -184,14 +190,7 @@ class CreatureFaible(Creature):
 
         self.setPO(0.5)
 
-        self.setActions(random.choice([1, 2, 3]))
-
-        for action in self.getActions():
-            action.setEtage(self.etage)
-            action.setEffet("2")
-            action.setDuree()
-            action.setPortee()
-            action.setDifficulte()
+        self.setActions(random.choice([1, 2, 3]), "faible")
 
 
 class CreatureMoyenne(Creature):
@@ -219,14 +218,7 @@ class CreatureMoyenne(Creature):
 
         self.setPO(1)
 
-        self.setActions(random.choice([2, 3, 4]))
-
-        for action in self.getActions():
-            action.setEtage(self.etage)
-            action.setEffet("1D6")
-            action.setDuree()
-            action.setPortee()
-            action.setDifficulte()
+        self.setActions(random.choice([2, 3, 4]), "moyen")
 
 
 class CreatureForte(Creature):
@@ -254,11 +246,4 @@ class CreatureForte(Creature):
 
         self.setPO(1)
 
-        self.setActions(random.choice([3, 4, 5]))
-
-        for action in self.getActions():
-            action.setEtage(self.etage)
-            action.setEffet("1D6")
-            action.setDuree()
-            action.setPortee()
-            action.setDifficulte()
+        self.setActions(random.choice([3, 4, 5]), "fort")
