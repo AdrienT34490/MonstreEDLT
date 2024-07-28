@@ -33,6 +33,7 @@ mobATuer = [None, 80, 80, 80, 80, 80, 80, 80, 80, 80]
 elementMagie = ["feu", "air", "terre", "eau", "foudre", "glace", "vapeur", "lave", "plantes", "acide", "poison",
                 "métal", "lumière", "ténèbre", "pure"]
 caracteristiques = ["FOR", "ADR", "CON", "INT", "PER", "CHA"]
+listeTypeMonstre = ["faible", "moyen", "fort"]
 
 
 class Coquille:

@@ -19,7 +19,7 @@ class Action:
         elif typeCreature == "fort":
             self.facteurComplexite = [2, 3]
 
-        self.complexite = random.choice(range(etage*self.facteurComplexite[0], etage*self.facteurComplexite[1]))
+        self.complexite = random.choice(range(etage*self.facteurComplexite[0], etage*self.facteurComplexite[1])) + 2
         complexite = self.complexite
 
         self.effet = 0
