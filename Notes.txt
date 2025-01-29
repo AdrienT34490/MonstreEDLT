@@ -1,0 +1,55 @@
+"Le facteur" : 
+f(x) = (ax³ + bx² + cx + d) * 0.01 {9 > x > 1}
+- a : 0.111111
+- b : -0.666667
+- c : 2.55556
+- d : 0
+
+
+dangerosité : 
+    Permet de calculer tout ce qui concerne le mob :
+        - PV
+        - XP
+        - Dégâts
+        - Caractéristiques
+        - Compétence
+        - Quantité de monstre rencontrée
+    Ensuite on calcule toute les statistiques dérivée
+
+    L'échelle de dangerosité va de 0 à 101 :
+        - 10 < créature totalement innofensives
+        - danger_total = danger_base + etage * 10
+        - 100 > créatures inssurmontables
+
+calcul de l'XP :
+    - XP(n) = [0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000]
+    - C'est ce qui permet de définir le "facteur", on pose trois points : (1, 2%) | (5, 10%) | (9, 50%)
+    Puis on fait une régréssion en polynôme cubique voir "le facteur"
+    - XP_totale(etage, danger_base) = f(danger_base) * (XP(etage+1) - XP(etage))
+
+Caractéristiques :
+    - Un mob de danger de base 5 possède +0 dans ses Caractéristiques
+    - Carac(etage, danger_base) = 3 * etage + (facteur - 3)
+
+calcul des PV :
+    - PV(etage, danger_base) = 10 + etage * f(danger_base) * 70
+
+dégâts de base :
+    - Un mob de danger_base = 5 doit tuer un aventurier en 4 coups
+    - Dgt(etage, danger_base) = PV_aventurier(etage) / (3.5 * facteur)
+
+Nombre de monstres rencontré :
+    - Il faut qu'un combat dure environ 3.5 tours
+    - Pour tuer un aventurier en cette limite de temps il faut ajouter des monstres.
+    - nbr_monstre = nbr_attaque / 3.5 de cette maniere 3.5 monstre atteignent le nombre d'attaque nécéssaire
+
+Compétences :
+    - Donner un nombre de Compétences : 
+    - Donner un nombre de complexité : transformer le nombre de dégât max en point de complexité
+    - Donner une attaque de base : basé sur la dangerosité de base du monstre 
+    - Donner une limite supérieure aux Dégâts : dégât moyen du monstre avec une dangerosité de + 1
+
+Rencontres :
+Un aventurier à un danger_total = 5 + 10 * etage 
+Une groupe d'aventurier à un danger_total égal à la somme des danger_total de tout les aventuriers.
+Les aventuriers peuvent rencontrer un groupe d'ennemi dont la somme des danger_total n'est pas supérieur à là leurs.
