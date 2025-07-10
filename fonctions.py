@@ -3,10 +3,10 @@ import math
 import random as rd
 
 def flat2dice(x):
-    nbr_dé = round(x // 3.5)
+    nbr_de = round(x // 3.5)
     bonus = round(x % 3.5)
 
-    return(f"{nbr_dé}D6 + {bonus}")
+    return f"{nbr_de}D6 + {bonus}"
 
 def flat2complexite(x):
     complexite = 0

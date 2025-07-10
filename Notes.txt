@@ -1,9 +1,5 @@
 "Le facteur" : 
-f(x) = (ax³ + bx² + cx + d) * 0.01 {9 > x > 1}
-- a : 0.111111
-- b : -0.666667
-- c : 2.55556
-- d : 0
+sigmoide (A / 1 + exp(x + shift))
 
 
 dangerosité : 
@@ -24,7 +20,7 @@ dangerosité :
 calcul de l'XP :
     - XP(n) = [0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000]
     - C'est ce qui permet de définir le "facteur", on pose trois points : (1, 2%) | (5, 10%) | (9, 50%)
-    Puis on fait une régréssion en polynôme cubique voir "le facteur"
+    Puis on fait une régréssion en sigmoide voir "le facteur"
     - XP_totale(etage, danger_base) = f(danger_base) * (XP(etage+1) - XP(etage))
 
 Caractéristiques :

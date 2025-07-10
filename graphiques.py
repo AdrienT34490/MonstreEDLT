@@ -5,7 +5,7 @@ from fonctions import generer_monstre  # Import de la fonction
 
 # Définition de la taille de la grille
 etages = np.arange(1, 10)  # de 1 à 9
-bases = np.arange(-50, 50)   # de 1 à 9
+bases = np.arange(0, 9)   # de 1 à 9
 
 # Création de la grille 2D
 X, Y = np.meshgrid(etages, bases)
@@ -15,7 +15,7 @@ XP = np.zeros_like(X, dtype=float)  # Initialisation de XP avec des zéros
 for i, etage in enumerate(etages):
     for j, base in enumerate(bases):
         monstre = generer_monstre(etage, base)
-        XP[j, i] = monstre["PV"]  # j, i correspond à Y, X
+        XP[j, i] = float(monstre["PV"].strip().split("|")[0])  # j, i correspond à Y, X
 
 # Création de la figure et du graphique 3D
 fig = plt.figure()
