@@ -7,6 +7,8 @@ from pathlib import Path
 SCRIPT_PATH = Path(__file__).resolve()
 SCRIPT_DIR = SCRIPT_PATH.parent
 
+SAVE_PATH = SCRIPT_DIR / "Mobs"
+
 MOD_PRICE = 150
 
 EXP_THRESHOLD = [

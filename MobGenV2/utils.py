@@ -1,5 +1,3 @@
-from . import EXP_THRESHOLD
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -29,7 +27,7 @@ def compute_factor(base) -> float:
     """
     Computes the factor
     :param base: base value of the mob
-    :return: associated factor
+    :return: associated factor in %
     """
     amplitude       = 53.01537
     shift           = -6.70181

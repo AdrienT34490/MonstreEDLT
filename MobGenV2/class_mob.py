@@ -1,12 +1,15 @@
-from . import STATS, EXP_THRESHOLD, MOD_PRICE, MOB_TYPE
+from . import STATS, EXP_THRESHOLD, MOD_PRICE, MOB_TYPE, SAVE_PATH
 from .utils import compute_factor, flat2dice, flat2complexite
 
 import numpy as np
 import warnings
+import json
+from pathlib import Path
 
 class Mob:
     def __init__(self, name: str, floor: int, base: int, main_stat: str):
         # Assigned attribute values
+        self.mob_dict: dict  = {}
         self.floor: int      = floor
         self.base: int       = base
         self.main_stat: str  = main_stat
@@ -22,20 +25,7 @@ class Mob:
                 self.mob_type = key
 
         # Default attribute values
-        self.stats: dict     = {}
-        self.danger: int     = 0
-        self.factor: float   = 0.0
-        self.exp: int        = 0
-        self.gold: int       = 0
-        self.lp: int         = 0
-        self.mean_dmg: int   = 0
-        self.mean_cmplx: int = 0
-        self.max_dmg: int    = 0
-        self.max_cmplx: int  = 0
-        self.mob_nbr: int    = 0
-        self.ca: int         = 0
-        self.ce: int         = 0
-        self.sd: int         = 0
+        self._assign_default()
 
         # Building of attributes
         self.build_basic_stats()
@@ -71,45 +61,79 @@ class Mob:
             "mean_cmplx", "max_dmg", "max_cmplx", "mob_nbr",
             "exp", "gold", "lp", "ca", "ce"
         ]
-        if key in positive_values:
-            if value < 0:
+
+        if key in positive_values and value < 0:
                 raise ValueError(f"Negative values are not allowed for {key}")
 
-        if key == "main_stat":
-            if value not in STATS.keys():
+        if key == "main_stat" and value not in STATS.keys():
                 raise ValueError(f"{value} is not a valid main stat. Valid main stats are {STATS.keys()}")
+
+        if key != "mob_dict":
+            self.mob_dict[key] = value
 
         super().__setattr__(key, value)
 
-    def __getattribute__(self, name):
-        if name.startswith("_"):
-            raise AttributeError(f"{name} is a private attribute")
-        return super().__getattribute__(name)
+    def _assign_default(self):
+        """
+        Assign default attributes values
+        """
+        self.stats: dict = {}
+        self.danger: int = 0
+        self.factor: float = 0.0
+        self.exp: int = 0
+        self.gold: int = 0
+        self.lp: int = 0
+        self.mean_dmg: int = 0
+        self.mean_cmplx: int = 0
+        self.max_dmg: int = 0
+        self.max_cmplx: int = 0
+        self.mob_nbr: int = 0
+        self.ca: int = 0
+        self.ce: int = 0
+        self.sd: int = 0
 
-    def __getattr__(self, name):
-        warnings.warn(f"{name} is not a valid attribute, returning None instead", UserWarning)
-        return None
+    def save_mob(self, name: str | None = None):
+        """
+        Save mob as .json file
+        """
+        if name is None:
+            base_name = f"{self.name}.json"
+        else:
+            base_name = f"{name}.json"
+
+        SAVE_PATH.mkdir(parents=True, exist_ok=True)
+        dest_path = SAVE_PATH / base_name
+
+        file_nbr = 1
+        while dest_path.exists():
+            dest_path = SAVE_PATH / f"{base_name} - ({file_nbr}).json"
+            file_nbr += 1
+
+        with dest_path.open("w", encoding="utf-8") as dest:
+            json.dump(self.mob_dict, dest, indent=4)
+
+
 
     def build_basic_stats(self):
         """
         Build basic stats for this Mob
         """
         # Danger
-        self.danger = self.floor * 10 + self.base
+        self.danger = int(self.floor * 10 + self.base)
 
         # factor
-        self.factor = compute_factor(self.base)
+        self.factor = float(compute_factor(self.base))
 
         # Experience
         delta_exp = EXP_THRESHOLD[self.floor] - EXP_THRESHOLD[self.floor - 1]
-        self.exp = max(0, round(self.factor * delta_exp))
+        self.exp = int(max(0, round(self.factor * delta_exp)))
 
         # Gold
-        self.gold = round(self.factor * MOD_PRICE * 0.2 * 10 * self.floor)
+        self.gold = int(round(self.factor * 2 * self.floor * MOD_PRICE))
 
         # Life Point
         lp_multiplier = round(self.factor * 70)
-        self.lp = round(10 + self.floor * lp_multiplier)
+        self.lp = int(round(20 + self.floor * lp_multiplier))
 
 
     def build_stats(self):
@@ -121,23 +145,31 @@ class Mob:
         del self.stats["Aucune"]
 
         stats_name = list(self.stats.keys())
-        stats_offset = np.ceil(self.factor * 100 / 4) - 5
-        stats_points = int(np.ceil((self.floor - 1) * 4 + stats_offset))
+        stats_offset = int(
+            np.ceil(
+                self.factor * 100 / 4
+            ) - 5
+        )
+        stats_points = int(
+            np.ceil(
+                self.floor * 4 + stats_offset
+            )
+        )
 
         if self.main_stat != "Aucune":
-            points_pref = round(stats_points * (1 / 6), 0)
-            self.stats[self.main_stat] = abs(points_pref)
+            points_pref = self.floor
+            self.stats[self.main_stat] = points_pref
             stats_points = int(stats_points - points_pref)
 
         for iteration in range(abs(stats_points)):
             choix = np.random.choice(stats_name, replace=True)
             if self.main_stat != "Aucune" and self.stats[choix] + 1 > self.stats[self.main_stat]:
                 if np.sign(stats_points) > 0:
-                    self.stats[self.main_stat] = self.stats[self.main_stat] + np.sign(stats_points)
+                    self.stats[self.main_stat] = int(self.stats[self.main_stat] + np.sign(stats_points))
                 else:
-                    self.stats[choix] = self.stats[choix] + np.sign(stats_points)
+                    self.stats[choix] = int(self.stats[choix] + np.sign(stats_points))
             else:
-                self.stats[choix] = self.stats[choix] + np.sign(stats_points)
+                self.stats[choix] = int(self.stats[choix] + np.sign(stats_points))
 
     def build_combat(self):
         """
@@ -147,45 +179,53 @@ class Mob:
         # Damage
         player_lp = 20 + self.floor * 7
         avg_atk_nbr = (1 / self.factor) * 0.5
-        self.mean_dmg = np.ceil(player_lp / avg_atk_nbr)
+        self.mean_dmg = int(np.ceil(player_lp / avg_atk_nbr))
 
         player_lp_np1 = 20 + (self.floor + 1) * 7
         max_atk_nbr = (1 / self.factor) * 0.5
-        self.max_dmg = np.ceil(player_lp_np1 / max_atk_nbr)
+        self.max_dmg = int(np.ceil(player_lp_np1 / max_atk_nbr))
 
         # Spell complexity
-        self.mean_cmplx = flat2complexite(self.mean_dmg)
-        self.max_cmplx = flat2complexite(self.max_dmg)
+        self.mean_cmplx = int(flat2complexite(self.mean_dmg))
+        self.max_cmplx = int(flat2complexite(self.max_dmg))
 
         # Encounter
         fight_length = 3.5
-        self.mob_nbr = np.ceil(avg_atk_nbr / fight_length)
+        self.mob_nbr = int(np.ceil(avg_atk_nbr / fight_length))
 
         # CA
-        self.ca = np.floor(max(
-            0,
-            7 +
-            self.stats["Force"] +
-            self.stats["Adresse"] +
-            self.stats["Constitution"] +
-            self.floor/2
-        ))
+        self.ca = int(
+            np.ceil(
+                max(
+                    0,
+                    7 +
+                    self.stats["Adresse"] +
+                    self.stats["Constitution"]
+                )
+            )
+        )
 
         # CE
-        self.ce = np.floor(max(
-            0,
-            7 +
-            self.stats["Intelligence"] +
-            self.stats["Perception"] +
-            self.stats["Charisme"] +
-            self.floor / 2
-        ))
+        self.ce = int(
+            np.ceil(
+                max(
+                    0,
+                    7 +
+                    self.stats["Intelligence"] +
+                    self.stats["Perception"]
+                )
+            )
+        )
 
         # SD
-        self.sd = np.floor(max(
-            0,
-            7 + self.stats["Adresse"]
-        ))
+        self.sd = int(
+            np.floor(
+                max(
+                    0,
+                    7 + self.stats["Adresse"]
+                )
+            )
+        )
 
 if __name__ == "__main__":
     oui = Mob("Tabouret", 0, 1, "Aucune")

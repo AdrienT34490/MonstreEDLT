@@ -243,7 +243,15 @@ class MaFenetre(QWidget):
         self.left_panel_layout.addWidget(
             self.mob_button,
             5, 0,
-            1, 2
+            1, 1
+        )
+
+        self.save = QPushButton("Sauvegarder le monstre")
+        self.save.clicked.connect(self.save_mob)
+        self.left_panel_layout.addWidget(
+            self.save,
+            5, 1,
+            1, 1
         )
 
         # Building right panel elements
@@ -341,6 +349,9 @@ class MaFenetre(QWidget):
             1, 2,
             self.right_panel_layout.rowCount(), 1
         )
+
+    def save_mob(self):
+        self.mob.save_mob()
 
 
 

@@ -1,0 +1,28 @@
+{
+    "floor": 2,
+    "base": 10,
+    "main_stat": "Adresse",
+    "name": "Osanyin",
+    "mob_type": "Guardien (10)",
+    "stats": {
+        "Force": 1,
+        "Adresse": 6,
+        "Constitution": 5,
+        "Intelligence": 2,
+        "Perception": 1,
+        "Charisme": 2
+    },
+    "danger": 30,
+    "factor": 0.5294977555327904,
+    "exp": 318,
+    "gold": 318,
+    "lp": 94,
+    "mean_dmg": 37,
+    "mean_cmplx": 35,
+    "max_dmg": 44,
+    "max_cmplx": 42,
+    "mob_nbr": 1,
+    "ca": 18,
+    "ce": 10,
+    "sd": 13
+}
