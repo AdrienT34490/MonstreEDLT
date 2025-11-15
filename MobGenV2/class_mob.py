@@ -1,5 +1,5 @@
-from __init__ import STATS, EXP_THRESHOLD, MOD_PRICE, MOB_TYPE, SAVE_PATH
-from utils import compute_factor, flat2dice, flat2complexite
+from . import STATS, EXP_THRESHOLD, MOD_PRICE, MOB_TYPE, SAVE_PATH
+from .utils import compute_factor, flat2dice, flat2complexite
 
 import numpy as np
 import warnings
