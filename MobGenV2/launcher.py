@@ -354,12 +354,20 @@ class MaFenetre(QWidget):
         self.mob.save_mob()
 
 
-
-
-if __name__ == "__main__":
+def launch_app():
     app = QApplication(sys.argv)
-
     fenetre = MaFenetre()
     fenetre.show()
 
     sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    try:
+        app = QApplication(sys.argv)
+        fenetre = MaFenetre()
+        fenetre.show()
+
+        sys.exit(app.exec_())
+    except Exception as e:
+        input(f"There was an error: {e}")

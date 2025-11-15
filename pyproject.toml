@@ -1,0 +1,41 @@
+[build-system]
+requires = ['setuptools>=42']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = "MobGeneratorEDLT"
+version = "2025.0.0.0"
+authors = [
+    { name = "Adrien Toulouse", email = "toulouseadrienjob@gmail.com" }
+]
+description = "App used to easily generate mobs for the TTRPG Échos de la tour"
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["TTRPG", "EDLT", "App"]
+
+classifiers = [
+    'Programming Language :: Python :: 3.10',
+    'Operating System :: Microsoft :: Windows',
+    'Environment :: Console',
+]
+dependencies = [
+    "numpy",
+    "matplotlib"
+]
+
+[project.scripts]
+SWAXSanalysis = "MobGenV2.launcher:launch_app"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"MobGenV2" = ["**/*"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["MobGenV2*"]
+namespaces = false
+
+[project.urls]
+Homepage = "https://github.com/AdrienT34490/MonstreEDLT"
