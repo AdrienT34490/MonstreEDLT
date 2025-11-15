@@ -20,7 +20,8 @@ classifiers = [
 ]
 dependencies = [
     "numpy",
-    "matplotlib"
+    "matplotlib",
+    "PyQt5"
 ]
 
 [project.scripts]
