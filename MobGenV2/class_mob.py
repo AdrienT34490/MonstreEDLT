@@ -1,5 +1,5 @@
-from . import STATS, EXP_THRESHOLD, MOD_PRICE, MOB_TYPE, SAVE_PATH
-from .utils import compute_factor, flat2dice, flat2complexite
+from __init__ import STATS, EXP_THRESHOLD, MOD_PRICE, MOB_TYPE, SAVE_PATH
+from utils import compute_factor, flat2dice, flat2complexite
 
 import numpy as np
 import warnings
@@ -200,7 +200,8 @@ class Mob:
                     0,
                     7 +
                     self.stats["Adresse"] +
-                    self.stats["Constitution"]
+                    self.stats["Constitution"] +
+                    self.base
                 )
             )
         )
@@ -212,7 +213,8 @@ class Mob:
                     0,
                     7 +
                     self.stats["Intelligence"] +
-                    self.stats["Perception"]
+                    self.stats["Perception"] +
+                    self.base
                 )
             )
         )

@@ -1,8 +1,8 @@
 import sys
 
-from . import FLOOR, MOB_TYPE, STATS, SCRIPT_DIR
-from .class_mob import Mob
-from .utils import flat2dice, flat2complexite
+from __init__ import FLOOR, MOB_TYPE, STATS, SCRIPT_DIR
+from class_mob import Mob
+from utils import flat2dice, flat2complexite
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QPushButton,
     QGridLayout, QLabel, QLineEdit,
