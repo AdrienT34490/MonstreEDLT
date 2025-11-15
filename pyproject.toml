@@ -24,7 +24,7 @@ dependencies = [
 ]
 
 [project.scripts]
-SWAXSanalysis = "MobGenV2.launcher:launch_app"
+MobGenEDLT = "MobGenV2.launcher:launch_app"
 
 [tool.setuptools]
 include-package-data = true
