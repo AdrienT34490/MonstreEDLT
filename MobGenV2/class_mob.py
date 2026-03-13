@@ -6,12 +6,15 @@ import warnings
 import json
 from pathlib import Path
 
+import os
+os.environ["QT_DEBUG_PLUGINS"] = "1"
+
 class Mob:
-    def __init__(self, name: str, floor: int, base: int, main_stat: str):
+    def __init__(self, name: str, level: int, power: int, main_stat: str):
         # Assigned attribute values
         self.mob_dict: dict  = {}
-        self.floor: int      = floor
-        self.base: int       = base
+        self.level: int      = level
+        self.power: int      = power
         self.main_stat: str  = main_stat
 
         if len(name) != 0:
@@ -21,7 +24,7 @@ class Mob:
 
         self.mob_type   = None
         for key, value in MOB_TYPE.items():
-            if self.base == value:
+            if self.power == value:
                 self.mob_type = key
 
         # Default attribute values
@@ -38,7 +41,7 @@ class Mob:
         String representation of Mob
         :return: string representation of Mob
         """
-        string  = f'This is {self.name}, from the {self.floor} floor and is of the "{self.mob_type}" type.\n'
+        string  = f'This is {self.name}, from the {self.level} floor and is of the "{self.mob_type}" type.\n'
         string += f"Danger level : {self.danger}\n"
         string += f"You may encounter {self.mob_nbr} ({flat2dice(self.mob_nbr)}) mobs at a time.\n"
 
@@ -57,7 +60,7 @@ class Mob:
 
     def __setattr__(self, key, value):
         positive_values = [
-            "danger", "floor", "base", "mean_dmg", "factor"
+            "danger", "level", "power", "mean_dmg", "factor"
             "mean_cmplx", "max_dmg", "max_cmplx", "mob_nbr",
             "exp", "gold", "lp", "ca", "ce"
         ]
@@ -118,22 +121,29 @@ class Mob:
         """
         Build basic stats for this Mob
         """
+        # refs
+        facteur_1 = compute_factor(1)
+        facteur_4 = compute_factor(4)
+        facteur_5 = compute_factor(5)
+        facteur_9 = compute_factor(9)
         # Danger
-        self.danger = int(self.floor * 10 + self.base)
+        self.danger = int(self.level * 10 + self.power)
 
         # factor
-        self.factor = float(compute_factor(self.base))
+        self.factor = float(compute_factor(self.power))
 
         # Experience
-        delta_exp = EXP_THRESHOLD[self.floor] - EXP_THRESHOLD[self.floor - 1]
+        delta_exp = EXP_THRESHOLD[self.level] - EXP_THRESHOLD[self.level - 1]
         self.exp = int(max(0, round(self.factor * delta_exp)))
 
         # Gold
-        self.gold = int(round(self.factor * 2 * self.floor * MOD_PRICE))
+        po_level = (self.level*150)/6
+        po_power = (self.factor - facteur_4) * (self.level*125) / (facteur_9 - facteur_4)
+        self.gold = int(po_level + po_power)
 
         # Life Point
-        lp_multiplier = round(self.factor * 70)
-        self.lp = int(round(20 + self.floor * lp_multiplier))
+        lp_adder = (self.factor - facteur_5) / (facteur_1 - facteur_5) * -19
+        self.lp = int(20 + self.level*7 + lp_adder)
 
 
     def build_stats(self):
@@ -141,23 +151,21 @@ class Mob:
         Method to build the stats of the mob
         :return:
         """
+        facteur_4 = compute_factor(4)
+        facteur_9 = compute_factor(9)
         self.stats: dict = STATS.copy()
         del self.stats["Aucune"]
 
         stats_name = list(self.stats.keys())
-        stats_offset = int(
-            np.ceil(
-                self.factor * 100 / 4
-            ) - 5
-        )
+        stats_offset = ((self.factor - facteur_4) / (facteur_9 - facteur_4)) * 3
         stats_points = int(
             np.ceil(
-                self.floor * 4 + stats_offset
+                (self.level-1) * 3 + (self.level * stats_offset)
             )
         )
 
         if self.main_stat != "Aucune":
-            points_pref = self.floor
+            points_pref = self.level
             self.stats[self.main_stat] = points_pref
             stats_points = int(stats_points - points_pref)
 
@@ -176,22 +184,23 @@ class Mob:
         Method to build the mob's damage
         :return:
         """
-        # Damage
-        player_lp = 20 + self.floor * 7
-        avg_atk_nbr = (1 / self.factor) * 0.5
-        self.mean_dmg = int(np.ceil(player_lp / avg_atk_nbr))
+        facteur_9 = compute_factor(9)
+        facteur_4 = compute_factor(4)
 
-        player_lp_np1 = 20 + (self.floor + 1) * 7
-        max_atk_nbr = (1 / self.factor) * 0.5
-        self.max_dmg = int(np.ceil(player_lp_np1 / max_atk_nbr))
+        # Damage
+        player_lp = 20 + self.level * 7
+        player_lp_max = player_lp + 5
+        avg_atk_nbr = 3
+
+        dmg_offset = (self.factor - facteur_4) / (facteur_9 - facteur_4) * 7
+        self.mean_dmg = int(player_lp / avg_atk_nbr + dmg_offset)
+
+        dmg_max_offset = (self.factor - facteur_4) / (facteur_9 - facteur_4) * 12
+        self.max_dmg = int(player_lp_max / avg_atk_nbr + dmg_max_offset)
 
         # Spell complexity
         self.mean_cmplx = int(flat2complexite(self.mean_dmg))
         self.max_cmplx = int(flat2complexite(self.max_dmg))
-
-        # Encounter
-        fight_length = 3.5
-        self.mob_nbr = int(np.ceil(avg_atk_nbr / fight_length))
 
         # CA
         self.ca = int(
@@ -200,8 +209,7 @@ class Mob:
                     0,
                     7 +
                     self.stats["Adresse"] +
-                    self.stats["Constitution"] +
-                    self.base
+                    self.stats["Constitution"]
                 )
             )
         )
@@ -213,8 +221,7 @@ class Mob:
                     0,
                     7 +
                     self.stats["Intelligence"] +
-                    self.stats["Perception"] +
-                    self.base
+                    self.stats["Perception"]
                 )
             )
         )

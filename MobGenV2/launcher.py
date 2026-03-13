@@ -1,6 +1,6 @@
 import sys
 sys.path.append(r"C:\Users\AT280565\PycharmProjects\Perso\RepoMob\MobGenV2")
-from RepoMob.MobGenV2 import FLOOR, MOB_TYPE, STATS, SCRIPT_DIR
+from RepoMob.MobGenV2 import LEVEL, MOB_TYPE, STATS, SCRIPT_DIR
 from RepoMob.MobGenV2.class_mob import Mob
 from RepoMob.MobGenV2.utils import flat2dice, flat2complexite
 from PyQt5.QtWidgets import (
@@ -24,7 +24,7 @@ class QSheet(QWidget):
         self.mob = mob
         self.values = {
             "name": self.mob.name,
-            "floor": self.mob.floor,
+            "floor": self.mob.level,
             "mob_type": self.mob.mob_type,
             "main_stat": self.mob.main_stat,
             "stats": self.mob.stats,
@@ -188,7 +188,7 @@ class MaFenetre(QWidget):
 
         # Setting up the window
         self.setWindowTitle("Générateur de mob")
-        self.setWindowIcon(QIcon(str(SCRIPT_DIR / "Images" / "babel.ico")))
+        # self.setWindowIcon(QIcon(str(SCRIPT_DIR / "Images" / "babel.ico")))
         self.resize(300, 100)
 
         self.layout = QGridLayout()
@@ -284,7 +284,7 @@ class MaFenetre(QWidget):
             2, 0
         )
         self.box_floor = QComboBox()
-        for key, value in FLOOR.items():
+        for key, value in LEVEL.items():
             self.box_floor.addItem(key, value)
 
         self.left_panel_layout.addWidget(
@@ -323,7 +323,7 @@ class MaFenetre(QWidget):
             default: bool = False
     ):
         if default:
-            default_mob = Mob(name="Example mob", floor=5, base=5, main_stat="Perception")
+            default_mob = Mob(name="Example mob", level=5, power=5, main_stat="Perception")
             self.mob_sheet = QSheet(default_mob)
             self.right_panel_layout.addWidget(
                 self.mob_sheet,
@@ -334,8 +334,8 @@ class MaFenetre(QWidget):
 
         dict_param = {
             "name": self.name.text(),
-            "floor": self.box_floor.currentData(),
-            "base": self.box_type.currentData(),
+            "level": self.box_floor.currentData(),
+            "power": self.box_type.currentData(),
             "main_stat": self.box_stat.currentText()
         }
 

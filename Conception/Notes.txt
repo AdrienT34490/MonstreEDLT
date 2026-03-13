@@ -1,5 +1,5 @@
 "Le facteur" : 
-sigmoide (A / 1 + exp(x + shift))
+sigmoide (A / 1 + exp(x + shift)) + offset
 
 
 dangerosité : 
@@ -12,40 +12,39 @@ dangerosité :
         - Quantité de monstre rencontrée
     Ensuite on calcule toute les statistiques dérivée
 
-    L'échelle de dangerosité va de 0 à 101 :
+    L'échelle de dangerosité va de 0 à 101 et est séparée en 2 :
+        - dangerosité absolue et relative
         - 10 < créature totalement innofensives
-        - danger_total = danger_base + etage * 10
+        - danger_total = puissance + niveau * 10
         - 100 > créatures inssurmontables
 
 calcul de l'XP :
     - XP(n) = [0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000]
-    - C'est ce qui permet de définir le "facteur", on pose trois points : (1, 2%) | (5, 10%) | (9, 50%)
+    - C'est ce qui permet de définir le "facteur", on pose trois points : (1, 1%) | (4, 4%) | (9, 25%)
     Puis on fait une régréssion en sigmoide voir "le facteur"
-    - XP_totale(etage, danger_base) = f(danger_base) * (XP(etage+1) - XP(etage))
+    - XP_totale(niveau, puissance) = f(puissance) * (XP(niveau+1) - XP(niveau))
 
 Caractéristiques :
-    - Un mob de danger de base 5 possède +0 dans ses Caractéristiques
-    - Carac(etage, danger_base) = 3 * etage + (facteur - 3)
+    - Un mob de danger de puissance 5 possède + (niveau - 1) * 3 dans ses Caractéristiques
+    - Carac(niveau, puissance) = 3 * (niveau - 1) + (facteur - facteur(4)) / (facteur(9) - facteur(4)) * 3
 
 calcul des PV :
-    - PV(etage, danger_base) = 10 + etage * f(danger_base) * 70
+    - PV(niveau, puissance) = 20 + niveau*7 + ((f(puissance) - f(5)) * (-19/(f(1)-f(5))) )
 
 dégâts de base :
-    - Un mob de danger_base = 5 doit tuer un aventurier en 4 coups
-    - Dgt(etage, danger_base) = PV_aventurier(etage) / (3.5 * facteur)
-
-Nombre de monstres rencontré :
-    - Il faut qu'un combat dure environ 3.5 tours
-    - Pour tuer un aventurier en cette limite de temps il faut ajouter des monstres.
-    - nbr_monstre = nbr_attaque / 3.5 de cette maniere 3.5 monstre atteignent le nombre d'attaque nécéssaire
+    - Un mob de puissance = 4 doit tuer un aventurier en 3 coups
+    - Dgt(niveau, puissance) = 7/3 * niveau + (facteur - facteur(4)) / (facteur(9) - facteur(4)) * 3
 
 Compétences :
-    - Donner un nombre de Compétences : 
-    - Donner un nombre de complexité : transformer le nombre de dégât max en point de complexité
-    - Donner une attaque de base : basé sur la dangerosité de base du monstre 
+    - Donner un nombre de complexité : transformer le nombre de dégât en point de complexité
     - Donner une limite supérieure aux Dégâts : dégât moyen du monstre avec une dangerosité de + 1
 
 Rencontres :
-Un aventurier à un danger_total = 5 + 10 * etage 
+Un aventurier à un danger_total = 5 + 10 * niveau 
 Une groupe d'aventurier à un danger_total égal à la somme des danger_total de tout les aventuriers.
 Les aventuriers peuvent rencontrer un groupe d'ennemi dont la somme des danger_total n'est pas supérieur à là leurs.
+
+Récompense :
+- Xp : voir plus haut
+- PO : (niveau * 150)/6 + (f(puissance) - f(4))*(125*niveau)/f(9)-f(4)
+- PdC : donner équivalent 1 PDC => or

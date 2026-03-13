@@ -23,25 +23,17 @@ def flat2complexite(x):
 
     return complexite
 
-def compute_factor(base) -> float:
+def compute_factor(power) -> float:
     """
     Computes the factor
-    :param base: base value of the mob
+    :param power: base value of the mob
     :return: associated factor in %
     """
-    amplitude       = 53.01537
-    shift           = -6.70181
-    offset          = 1.82352
+    amplitude       = 24
+    shift           = -5.83436
+    offset          = 1
 
-    denominator = 1 + np.exp(-(base + shift))
+    denominator = 1 + np.exp(-(power + shift))
 
-    return ((amplitude / denominator) + offset) * 0.01
+    return (amplitude / denominator) + offset
 
-if __name__ == "__main__":
-    base_list = np.arange(0, 10, 0.1)
-    floor_list = np.arange(0, 10, 0.1)
-    base_mesh, floor_mesh = np.meshgrid(base_list, floor_list)
-
-    fig, ax = plt.subplots(1, 1)
-    ax.plot(base_list, compute_factor(base_list))
-    plt.show()
