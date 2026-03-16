@@ -4,7 +4,7 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = "MobGeneratorEDLT"
-version = "2026.1.1.1"
+version = "2026.1.1.2"
 authors = [
     { name = "Adrien Toulouse", email = "toulouseadrienjob@gmail.com" }
 ]
@@ -24,8 +24,7 @@ dependencies = [
     "PyQt5",
     "seaborn",
     "plotly",
-    "pandas",
-    "difflib"
+    "pandas"
 ]
 
 [project.scripts]
