@@ -48,7 +48,7 @@ if errorlevel 1 (
 python -c "import pkg_resources; pkg_resources.get_distribution('MonstreEDLT')" 2>nul
 if errorlevel 1 (
     echo [CONSOLE] : Installation du package MonstreEDLT depuis GitHub...
-    pip install https://github.com/AdrienT34490/MonstreEDLT/archive/refs/heads/trunk.zip
+    pip install git+https://github.com/AdrienT34490/MonstreEDLT.git
 ) else (
     echo [CONSOLE] : Package MonstreEDLT déjà installé.
 )

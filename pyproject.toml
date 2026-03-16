@@ -4,7 +4,7 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = "MobGeneratorEDLT"
-version = "2026.1.0.3"
+version = "2026.1.1.0"
 authors = [
     { name = "Adrien Toulouse", email = "toulouseadrienjob@gmail.com" }
 ]
