@@ -31,6 +31,9 @@ Caractéristiques :
 calcul des PV :
     - PV(niveau, puissance) = 20 + niveau*7 + ((f(puissance) - f(5)) * (-19/(f(1)-f(5))) )
 
+calcul des Score :
+    - Score(niveau, puissance = score_base + (facteur - facteur(4)) / (facteur(9) - facteur(4)) * 2
+
 dégâts de base :
     - Un mob de puissance = 4 doit tuer un aventurier en 3 coups
     - Dgt(niveau, puissance) = 7/3 * niveau + (facteur - facteur(4)) / (facteur(9) - facteur(4)) * 3

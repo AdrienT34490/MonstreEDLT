@@ -1,8 +1,8 @@
 import sys
 sys.path.append(r"C:\Users\AT280565\PycharmProjects\Perso\RepoMob\MobGenV2")
-from RepoMob.MobGenV2 import LEVEL, MOB_TYPE, STATS, SCRIPT_DIR
-from RepoMob.MobGenV2.class_mob import Mob
-from RepoMob.MobGenV2.utils import flat2dice, flat2complexite
+from . import LEVEL, MOB_TYPE, STATS, SCRIPT_DIR
+from .class_mob import Mob, create_xls
+from .utils import *
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QPushButton,
     QGridLayout, QLabel, QLineEdit,
@@ -10,7 +10,8 @@ from PyQt5.QtWidgets import (
 )
 
 from PyQt5.QtGui import (
-    QIcon
+    QIcon,
+    QFont
 )
 
 from PyQt5.QtCore import (
@@ -24,7 +25,7 @@ class QSheet(QWidget):
         self.mob = mob
         self.values = {
             "name": self.mob.name,
-            "floor": self.mob.level,
+            "floor": self.mob.mob_level,
             "mob_type": self.mob.mob_type,
             "main_stat": self.mob.main_stat,
             "stats": self.mob.stats,
@@ -36,7 +37,6 @@ class QSheet(QWidget):
             "max_dmg": self.mob.max_dmg,
             "mean_cmplx": self.mob.mean_cmplx,
             "max_cmplx": self.mob.max_cmplx,
-            "mob_nbr": self.mob.mob_nbr,
             "ca": self.mob.ca,
             "ce": self.mob.ce,
             "sd": self.mob.sd
@@ -57,10 +57,9 @@ class QSheet(QWidget):
             <h1>{mob_name} : {self.values["lp"]} HP ({flat2dice(self.values["lp"])})</h1></br>
             <h3>Spécificité</h3></br>
             <ul>
-                <li>Étage  : {self.values["floor"]}</li>
-                <li>Type   : {self.values["mob_type"]}</li>
+                <li>Niveau  : {self.values["floor"]}</li>
+                <li>Puissance   : {self.values["mob_type"]}</li>
                 <li>Danger : {self.values["danger"]}</li>
-                <li>Rencontre : {self.values["mob_nbr"]}</li>
             </ul>
             """
         )
@@ -84,7 +83,7 @@ class QSheet(QWidget):
                 row2 += f"""<td style="text-align:center;">{stat_value}</td>"""
 
         table_stats = f"""
-        <h3>Caractéristiques - Scores</h3></br>
+        <h3>Caractéristiques - Scores ({self.mob.stats_points})</h3></br>
         <div style="text-align:center;">
             <table border="1" cellpadding="4" cellspacing="0">
                 <tr>{row1}</tr>
@@ -113,7 +112,7 @@ class QSheet(QWidget):
         """
 
         label_stats = QLabel(table_stats)
-        # label_stats.setAlignment(Qt.AlignCenter)
+        label_stats.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(
             label_stats,
             1, 0,
@@ -133,6 +132,28 @@ class QSheet(QWidget):
                 </ul>
             """
         )
+
+        label_rewards_string = f"""
+                <h3>Récompenses :</h3>
+                <table>
+                    <tr>
+                        <td valign="top">
+                            <ul>
+                                <li>Pièces d'or  : {gold}</li>
+                                <li>Expérience   : {experience}</li>
+                            </ul>
+                        </td>
+                        <td style="padding-left: 40px;" valign="top">
+                            <ul>
+            """
+
+        for luck in range(1, 4):
+            label_rewards_string += \
+                f"""
+                    <li>{luck} PDC  : {compute_value(self.mob.danger, luck)}</li>
+                """
+        label_rewards_string += """</ul></td></tr></table>"""
+        label_rewards = QLabel(label_rewards_string)
         self.layout.addWidget(
             label_rewards,
             2, 0,
@@ -159,8 +180,8 @@ class QSheet(QWidget):
                         </td>
                         <td style="padding-left: 40px;" valign="top">
                             <ul>
-                                <li>Complexité moyenne : {mean_cmplx} ({flat2complexite(mean_dmg)})</li>
-                                <li>Complexité max     : {max_cmplx} ({flat2complexite(max_dmg)})</li>
+                                <li>Complexité moyenne : {mean_cmplx}</li>
+                                <li>Complexité max     : {max_cmplx}</li>
                             </ul>
                         </td>
                     </tr>
@@ -188,7 +209,7 @@ class MaFenetre(QWidget):
 
         # Setting up the window
         self.setWindowTitle("Générateur de mob")
-        # self.setWindowIcon(QIcon(str(SCRIPT_DIR / "Images" / "babel.ico")))
+        self.setWindowIcon(QIcon(str(SCRIPT_DIR / "Images" / "babel.ico")))
         self.resize(300, 100)
 
         self.layout = QGridLayout()
@@ -280,7 +301,7 @@ class MaFenetre(QWidget):
 
         # Floor
         self.left_panel_layout.addWidget(
-            QLabel("Étage d'origine :"),
+            QLabel("Niveau :"),
             2, 0
         )
         self.box_floor = QComboBox()
@@ -294,7 +315,7 @@ class MaFenetre(QWidget):
 
         # Base
         self.left_panel_layout.addWidget(
-            QLabel("Type de monstre :"),
+            QLabel("Puissance :"),
             3, 0
         )
         self.box_type = QComboBox()
@@ -367,7 +388,10 @@ if __name__ == "__main__":
         app = QApplication(sys.argv)
         fenetre = MaFenetre()
         fenetre.show()
+        create_xls()
 
         sys.exit(app.exec_())
     except Exception as e:
+        Exception(e)
         input(f"There was an error: {e}")
+

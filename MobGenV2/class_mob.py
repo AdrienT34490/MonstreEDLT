@@ -1,13 +1,40 @@
-from . import STATS, EXP_THRESHOLD, MOD_PRICE, MOB_TYPE, SAVE_PATH
-from .utils import compute_factor, flat2dice, flat2complexite
+from . import STATS, EXP_THRESHOLD, MOD_PRICE, MOB_TYPE, SAVE_PATH, LEVEL
+from .utils import *
 
 import numpy as np
-import warnings
+import pandas as pd
 import json
-from pathlib import Path
 
 import os
 os.environ["QT_DEBUG_PLUGINS"] = "1"
+
+def create_xls(display=False) -> None:
+    level_list = np.linspace(0, 10, 11, endpoint=True)
+    power_list = np.linspace(1, 10, 10, endpoint=True)
+
+    rows = []
+
+    for level in level_list:
+        for power in power_list:
+            mob = Mob("", int(level), int(power), "Aucune")
+
+            rows.append({
+                "Level": int(level),
+                "Power": int(power),
+                "Danger": mob.danger,
+                "Stats": mob.stats_points,
+                "Gold": mob.gold,
+                "XP": mob.exp,
+                "Mean Damage": mob.mean_dmg,
+                "Max Damage": mob.max_dmg,
+                "Mean Complexity": mob.mean_cmplx,
+                "Max Complexity": mob.max_cmplx
+            })
+
+    df = pd.DataFrame(rows)
+    df.to_excel("mob_stats.xlsx", index=False)
+    if display:
+        interactive_heatmap(df)
 
 class Mob:
     def __init__(self, name: str, level: int, power: int, main_stat: str):
@@ -21,6 +48,11 @@ class Mob:
             self.name: str = name
         else:
             self.name: str = "defaultMobName"
+
+        self.mob_level  = None
+        for key, value in LEVEL.items():
+            if self.level == value:
+                self.mob_level = key
 
         self.mob_type   = None
         for key, value in MOB_TYPE.items():
@@ -43,7 +75,6 @@ class Mob:
         """
         string  = f'This is {self.name}, from the {self.level} floor and is of the "{self.mob_type}" type.\n'
         string += f"Danger level : {self.danger}\n"
-        string += f"You may encounter {self.mob_nbr} ({flat2dice(self.mob_nbr)}) mobs at a time.\n"
 
         string += f"Mob statistics:\n"
         for key, value in self.stats.items():
@@ -61,7 +92,7 @@ class Mob:
     def __setattr__(self, key, value):
         positive_values = [
             "danger", "level", "power", "mean_dmg", "factor"
-            "mean_cmplx", "max_dmg", "max_cmplx", "mob_nbr",
+            "mean_cmplx", "max_dmg", "max_cmplx",
             "exp", "gold", "lp", "ca", "ce"
         ]
 
@@ -90,7 +121,6 @@ class Mob:
         self.mean_cmplx: int = 0
         self.max_dmg: int = 0
         self.max_cmplx: int = 0
-        self.mob_nbr: int = 0
         self.ca: int = 0
         self.ce: int = 0
         self.sd: int = 0
@@ -134,16 +164,16 @@ class Mob:
 
         # Experience
         delta_exp = EXP_THRESHOLD[self.level] - EXP_THRESHOLD[self.level - 1]
-        self.exp = int(max(0, round(self.factor * delta_exp)))
+        self.exp = int(max(0, self.factor * 0.01 * delta_exp))
 
         # Gold
-        po_level = (self.level*150)/6
-        po_power = (self.factor - facteur_4) * (self.level*125) / (facteur_9 - facteur_4)
+        po_level = (self.level*MOD_PRICE)/6
+        po_power = (self.factor - facteur_4) * (self.level*(MOD_PRICE - (MOD_PRICE/6))) / (facteur_9 - facteur_4)
         self.gold = int(po_level + po_power)
 
         # Life Point
-        lp_adder = (self.factor - facteur_5) / (facteur_1 - facteur_5) * -19
-        self.lp = int(20 + self.level*7 + lp_adder)
+        lp_adder = (self.factor - facteur_5) / (facteur_1 - facteur_5) * -22
+        self.lp = max(1, int(20 + self.level*7 + lp_adder))
 
 
     def build_stats(self):
@@ -163,6 +193,7 @@ class Mob:
                 (self.level-1) * 3 + (self.level * stats_offset)
             )
         )
+        self.stats_points = stats_points
 
         if self.main_stat != "Aucune":
             points_pref = self.level
@@ -203,13 +234,16 @@ class Mob:
         self.max_cmplx = int(flat2complexite(self.max_dmg))
 
         # CA
+        mod_score = ((self.factor - facteur_4) / (facteur_9 - facteur_4) * 2)+4
+        print(mod_score)
         self.ca = int(
             np.ceil(
                 max(
                     0,
                     7 +
                     self.stats["Adresse"] +
-                    self.stats["Constitution"]
+                    self.stats["Constitution"] +
+                    mod_score
                 )
             )
         )
@@ -221,7 +255,8 @@ class Mob:
                     0,
                     7 +
                     self.stats["Intelligence"] +
-                    self.stats["Perception"]
+                    self.stats["Perception"] +
+                    mod_score
                 )
             )
         )
