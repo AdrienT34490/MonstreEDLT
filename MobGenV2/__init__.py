@@ -6,8 +6,9 @@ from pathlib import Path
 
 SCRIPT_PATH = Path(__file__).resolve()
 SCRIPT_DIR = SCRIPT_PATH.parent
+BASE_DIR = Path.cwd()
 
-SAVE_PATH = SCRIPT_DIR / "Mobs"
+SAVE_PATH = BASE_DIR / "Mobs"
 
 MOD_PRICE = 150
 

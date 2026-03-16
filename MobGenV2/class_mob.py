@@ -234,8 +234,7 @@ class Mob:
         self.max_cmplx = int(flat2complexite(self.max_dmg))
 
         # CA
-        mod_score = ((self.factor - facteur_4) / (facteur_9 - facteur_4) * 2)+4
-        print(mod_score)
+        mod_score = ((self.factor - facteur_4) / (facteur_9 - facteur_4) * 2) + 4
         self.ca = int(
             np.ceil(
                 max(
